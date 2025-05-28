@@ -1,29 +1,36 @@
-# 使用官方 Node.js 镜像作为基础镜像
-FROM node:18-slim
+FROM node:18
 
-# 设置工作目录
 WORKDIR /app
 
-# 只复制 package.json 到容器中
+# 安装 Puppeteer Chromium 运行依赖
+RUN apt-get update && apt-get install -y \
+    wget \
+    ca-certificates \
+    fonts-liberation \
+    libappindicator3-1 \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libdrm2 \
+    libgbm1 \
+    libgtk-3-0 \
+    libnspr4 \
+    libnss3 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    xdg-utils \
+    --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY package.json ./
-
-# 安装项目的依赖项
 RUN npm install
-
-# 将 TypeScript 编译器相关的工具（tsc, ts-node）安装到全局环境中
 RUN npm install -g typescript ts-node
-
-# 复制项目的源代码到容器中
 COPY . .
-
-# 编译 TypeScript 代码
 RUN npm run build
 
-# 设置环境变量（你可以根据需要调整）
-ENV NODE_ENV=production
-
-# 暴露服务端口
-EXPOSE 3000
-
-# 运行项目
+EXPOSE 3003
 CMD ["npm", "start"]
